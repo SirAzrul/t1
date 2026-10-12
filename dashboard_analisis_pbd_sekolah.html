@@ -1,0 +1,2743 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Dashboard & Analisis PBD Sekolah</title>
+    
+    <!-- Konfigurasi Favicon & Ikon Aplikasi (lh3.googleusercontent.com) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://lh3.googleusercontent.com/d/1ZxjvCwnXbnRXyzJcdlgxIYw-RzBF6stA=s64">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://lh3.googleusercontent.com/d/1ZxjvCwnXbnRXyzJcdlgxIYw-RzBF6stA=s192">
+    <link rel="shortcut icon" href="https://lh3.googleusercontent.com/d/1ZxjvCwnXbnRXyzJcdlgxIYw-RzBF6stA=s64">
+
+    <!-- Konfigurasi Apple iOS Home Screen (Web App Capable) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PBD Sekolah">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://lh3.googleusercontent.com/d/1ZxjvCwnXbnRXyzJcdlgxIYw-RzBF6stA=s180">
+
+    <!-- Konfigurasi Android & PWA Manifest Inline -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Sistem Analisis PBD Sekolah","short_name":"PBD Sekolah","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#4f46e5","icons":[{"src":"https://lh3.googleusercontent.com/d/1ZxjvCwnXbnRXyzJcdlgxIYw-RzBF6stA=s192","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://lh3.googleusercontent.com/d/1ZxjvCwnXbnRXyzJcdlgxIYw-RzBF6stA=s512","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+
+    <!-- Google Fonts Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-gradient: radial-gradient(at 0% 0%, #e0e7ff 0px, transparent 50%),
+                           radial-gradient(at 100% 0%, #fae8ff 0px, transparent 50%),
+                           radial-gradient(at 50% 100%, #dbeafe 0px, transparent 50%),
+                           #f1f5f9;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-bg-card: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-shadow: 0 10px 35px -5px rgba(99, 102, 241, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.4);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --accent-primary: #4f46e5;
+            --accent-primary-hover: #4338ca;
+            --accent-light: #e0e7ff;
+            --table-header: rgba(241, 245, 249, 0.85);
+            --table-row-hover: rgba(238, 242, 255, 0.6);
+            --modal-overlay: rgba(15, 23, 42, 0.6);
+            --badge-tp1: #fee2e2; --text-tp1: #991b1b;
+            --badge-tp2: #ffedd5; --text-tp2: #9a3412;
+            --badge-tp3: #fef9c3; --text-tp3: #854d0e;
+            --badge-tp4: #e0f2fe; --text-tp4: #075985;
+            --badge-tp5: #dcfce7; --text-tp5: #166534;
+            --badge-tp6: #f3e8ff; --text-tp6: #6b21a8;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-gradient: radial-gradient(at 0% 0%, #1e1b4b 0px, transparent 50%),
+                           radial-gradient(at 100% 0%, #311042 0px, transparent 50%),
+                           radial-gradient(at 50% 100%, #0f172a 0px, transparent 50%),
+                           #090d16;
+            --glass-bg: rgba(17, 24, 39, 0.65);
+            --glass-bg-card: rgba(24, 33, 53, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.09);
+            --glass-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --accent-primary: #6366f1;
+            --accent-primary-hover: #818cf8;
+            --accent-light: rgba(99, 102, 241, 0.2);
+            --table-header: rgba(30, 41, 59, 0.8);
+            --table-row-hover: rgba(51, 65, 85, 0.45);
+            --modal-overlay: rgba(0, 0, 0, 0.8);
+            --badge-tp1: rgba(239, 68, 68, 0.2); --text-tp1: #fca5a5;
+            --badge-tp2: rgba(249, 115, 22, 0.2); --text-tp2: #fdba74;
+            --badge-tp3: rgba(234, 179, 8, 0.2); --text-tp3: #fde047;
+            --badge-tp4: rgba(14, 165, 233, 0.2); --text-tp4: #7dd3fc;
+            --badge-tp5: rgba(34, 197, 94, 0.2); --text-tp5: #86efac;
+            --badge-tp6: rgba(168, 85, 247, 0.2); --text-tp6: #d8b4fe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 1.25rem;
+            line-height: 1.5;
+        }
+
+        h1, h2, h3, h4, h5, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: 1.25rem;
+        }
+
+        .glass-card {
+            background: var(--glass-bg-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: 1rem;
+            padding: 1.25rem;
+        }
+
+        .app-container {
+            max-width: 1540px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.2rem 1.75rem;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #4f46e5, #9333ea);
+            color: white;
+            border-radius: 1rem;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+        }
+
+        .brand-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: inherit;
+        }
+
+        .brand-text h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text p {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg-card);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.primary {
+            background: var(--accent-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        .action-btn.primary:hover {
+            background: var(--accent-primary-hover);
+            color: white;
+        }
+
+        .action-btn.danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn.danger:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .filter-section {
+            padding: 1.25rem 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .form-label {
+            font-size: 0.785rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 0.65rem 0.95rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg-card);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .form-select:focus, .form-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .year-pills {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 0.35rem;
+            border-radius: 0.9rem;
+            border: 1px solid var(--glass-border);
+            overflow-x: auto;
+        }
+
+        [data-theme="dark"] .year-pills {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .year-pill-btn {
+            padding: 0.5rem 1.1rem;
+            border-radius: 0.65rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .year-pill-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 3px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Navigasi Tab Utama */
+        .main-tab-nav {
+            display: flex;
+            gap: 0.6rem;
+            border-bottom: 2px solid var(--glass-border);
+            padding-bottom: 0.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .main-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.75rem 1.4rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 0.85rem 0.85rem 0 0;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .main-tab-btn:hover {
+            color: var(--accent-primary);
+            background: var(--accent-light);
+        }
+
+        .main-tab-btn.active {
+            color: var(--accent-primary);
+            background: var(--glass-bg-card);
+            border: 1px solid var(--glass-border);
+            border-bottom: 3px solid var(--accent-primary);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .tab-pane {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .tab-pane.active {
+            display: flex;
+        }
+
+        /* Direct Edit Cell & Badges */
+        .tp-cell-select {
+            padding: 0.25rem 0.4rem;
+            border-radius: 0.45rem;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg-card);
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 0.78rem;
+            cursor: pointer;
+            outline: none;
+        }
+        .tp-cell-select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+        .tp-cell-select.saved-flash {
+            animation: flashGreen 0.7s ease;
+        }
+        @keyframes flashGreen {
+            0% { background-color: #86efac; color: #064e3b; }
+            100% { background-color: var(--glass-bg-card); }
+        }
+
+        .master-edit-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 2rem;
+            background: var(--glass-bg-card);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.825rem;
+            font-weight: 600;
+        }
+        .master-edit-toggle.active {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+            color: #059669;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .kpi-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent-primary);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .kpi-info h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .kpi-info .kpi-value {
+            font-size: 1.85rem;
+            font-weight: 800;
+            margin: 0.2rem 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .kpi-info .kpi-subtext {
+            font-size: 0.775rem;
+            color: var(--text-muted);
+        }
+
+        .kpi-icon-badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 1rem;
+            display: grid;
+            place-items: center;
+            background: var(--accent-light);
+            color: var(--accent-primary);
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.25rem;
+        }
+
+        .chart-box {
+            display: flex;
+            flex-direction: column;
+            min-height: 380px;
+        }
+
+        .chart-box.col-8 { grid-column: span 8; }
+        .chart-box.col-4 { grid-column: span 4; }
+        .chart-box.col-6 { grid-column: span 6; }
+
+        @media (max-width: 1024px) {
+            .chart-box.col-8,
+            .chart-box.col-4,
+            .chart-box.col-6 {
+                grid-column: span 12;
+            }
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .chart-container-inner {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            min-height: 280px;
+        }
+
+        .table-section {
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        .table-header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 0.85rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        table.pbd-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            text-align: left;
+            min-width: 900px;
+        }
+
+        table.pbd-table th {
+            background: var(--table-header);
+            padding: 0.85rem 0.95rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--glass-border);
+            white-space: nowrap;
+        }
+
+        table.pbd-table td {
+            padding: 0.8rem 0.95rem;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        table.pbd-table tbody tr:hover {
+            background: var(--table-row-hover);
+        }
+
+        .badge-tp {
+            display: inline-block;
+            font-weight: 700;
+            font-size: 0.775rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 0.4rem;
+            text-align: center;
+            min-width: 38px;
+        }
+
+        .badge-tp.tp-0 { background: #e2e8f0; color: #64748b; }
+        .badge-tp.tp-1 { background: var(--badge-tp1); color: var(--text-tp1); }
+        .badge-tp.tp-2 { background: var(--badge-tp2); color: var(--text-tp2); }
+        .badge-tp.tp-3 { background: var(--badge-tp3); color: var(--text-tp3); }
+        .badge-tp.tp-4 { background: var(--badge-tp4); color: var(--text-tp4); }
+        .badge-tp.tp-5 { background: var(--badge-tp5); color: var(--text-tp5); }
+        .badge-tp.tp-6 { background: var(--badge-tp6); color: var(--text-tp6); }
+
+        .gender-badge {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        .gender-l { background: rgba(59, 130, 246, 0.15); color: #2563eb; }
+        .gender-p { background: rgba(236, 72, 153, 0.15); color: #db2777; }
+
+        .table-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .pagination-btn-group { display: flex; gap: 0.4rem; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-window {
+            width: 100%;
+            max-width: 860px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .auth-card {
+            max-width: 440px;
+            padding: 2.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast-msg {
+            background: var(--glass-bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 2rem;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            font-weight: 600;
+        }
+        .sync-badge.loading {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+        .sync-badge.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: currentColor;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        .pdpa-box {
+            font-size: 0.735rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 0.65rem 0.85rem;
+            border-radius: 0.6rem;
+            line-height: 1.4;
+        }
+        [data-theme="dark"] .pdpa-box {
+            background: rgba(255, 255, 255, 0.03);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <nav class="glass-panel top-navbar">
+            <div class="brand-section">
+                <div class="brand-icon" style="padding: 3px; background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35); overflow: hidden;">
+                    <img src="https://lh3.googleusercontent.com/d/1ZxjvCwnXbnRXyzJcdlgxIYw-RzBF6stA" alt="Logo Rasmi PBD" class="brand-logo-img" onerror="this.onerror=null; this.src='https://placehold.co/128x128/4f46e5/ffffff?text=PBD';">
+                </div>
+                <div class="brand-text">
+                    <h1>Sistem Analisis PBD Sekolah</h1>
+                    <p>Dashboard Pentaksiran Bilik Darjah KSSR Semakan • Tahun 4, 5 & 6 (Secured API)</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div id="syncStatus" class="sync-badge">
+                    <span class="pulse-dot"></span>
+                    <span id="syncText">Memuatkan...</span>
+                </div>
+                <button id="themeToggleBtn" class="action-btn" title="Tukar Tema (Gelap/Cerah)">
+                    <i data-lucide="moon" id="themeIcon"></i>
+                    <span id="themeLabel">Gelap</span>
+                </button>
+                <button id="refreshBtn" class="action-btn" title="Segar Semula Data Apps Script">
+                    <i data-lucide="refresh-cw"></i>
+                    <span>Muat Semula</span>
+                </button>
+                <button id="exportCsvBtn" class="action-btn primary" title="Eksport Analisis Semasa">
+                    <i data-lucide="download"></i>
+                    <span>Eksport CSV</span>
+                </button>
+                <div id="userProfileBadge" style="display: none; align-items: center; gap: 0.5rem; margin-left: 0.5rem;">
+                    <span id="userDisplayName" style="font-size: 0.85rem; font-weight: 600;"></span>
+                    <button id="logoutBtn" class="action-btn danger" style="padding: 0.5rem 0.75rem;" title="Log Keluar">
+                        <i data-lucide="log-out"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Filter Controls -->
+        <section class="glass-panel filter-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div class="year-pills" id="yearSelector">
+                    <button class="year-pill-btn active" data-year="ALL">Semua Aliran</button>
+                    <button class="year-pill-btn" data-year="4">Tahun 4</button>
+                    <button class="year-pill-btn" data-year="5">Tahun 5</button>
+                    <button class="year-pill-btn" data-year="6">Tahun 6</button>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="shield-check" style="width: 16px; height: 16px; color: #10b981;"></i>
+                    <span id="sourceIndicator">Punca Data: Google Apps Script API (Session Token Protected)</span>
+                </div>
+            </div>
+
+            <!-- Navigasi Tab Utama (Overview vs Jadual Pelajar) -->
+            <div class="main-tab-nav">
+                <button class="main-tab-btn active" id="tabBtnOverview">
+                    <i data-lucide="layout-dashboard"></i> Ringkasan & Analisis Carta
+                </button>
+                <button class="main-tab-btn" id="tabBtnTable">
+                    <i data-lucide="table-properties"></i> Senarai & Kemas Kini Markah
+                </button>
+                <button class="main-tab-btn" id="tabBtnSettings">
+                    <i data-lucide="settings"></i> Tetapan Sistem
+                </button>
+            </div>
+
+            <div class="filter-grid" id="mainFilterControls">
+                <div class="form-group">
+                    <label class="form-label">Fokus Mata Pelajaran</label>
+                    <select id="subjectSelect" class="form-select">
+                        <option value="ALL">Semua Mata Pelajaran (Purata TP)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Jantina</label>
+                    <select id="genderSelect" class="form-select">
+                        <option value="ALL">Semua Jantina</option>
+                        <option value="L">Lelaki (L)</option>
+                        <option value="P">Perempuan (P)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tahap Penguasaan (TP)</label>
+                    <select id="tpSelect" class="form-select">
+                        <option value="ALL">Semua Tahap (TP 1 - 6)</option>
+                        <option value="MTM">Mencapai Tahap Minimum (TP 3 - 6)</option>
+                        <option value="BTM">Belum Menguasai (TP 1 - 2)</option>
+                        <option value="6">TP 6 (Cemerlang Tertinggi)</option>
+                        <option value="5">TP 5 (Sangat Baik)</option>
+                        <option value="4">TP 4 (Baik)</option>
+                        <option value="3">TP 3 (Memuaskan)</option>
+                        <option value="2">TP 2 (Dasar)</option>
+                        <option value="1">TP 1 (Permulaan)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Carian Murid</label>
+                    <div style="position: relative;">
+                        <input type="text" id="searchInput" class="form-input" placeholder="Cari nama murid...">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KANDUNGAN TAB 1: OVERVIEW & ANALISIS CARTA -->
+        <div id="paneOverview" class="tab-pane active">
+            <!-- KPI Cards -->
+            <section class="kpi-grid">
+                <div class="glass-card kpi-card" style="--accent-primary: #4f46e5;">
+                    <div class="kpi-info">
+                        <h4>Jumlah Murid</h4>
+                        <div class="kpi-value" id="kpiTotalStudents">0</div>
+                        <div class="kpi-subtext" id="kpiGenderRatio">0 L • 0 P</div>
+                    </div>
+                    <div class="kpi-icon-badge" style="background: rgba(79, 70, 229, 0.15); color: #4f46e5;">
+                        <i data-lucide="users"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card kpi-card" style="--accent-primary: #10b981;">
+                    <div class="kpi-info">
+                        <h4>Lulus MTM (TP ≥ 3)</h4>
+                        <div class="kpi-value" id="kpiMtmRate">0%</div>
+                        <div class="kpi-subtext" id="kpiMtmCount">0 / 0 Murid Menguasai</div>
+                    </div>
+                    <div class="kpi-icon-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                        <i data-lucide="check-circle-2"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card kpi-card" style="--accent-primary: #8b5cf6;">
+                    <div class="kpi-info">
+                        <h4>Purata Keseluruhan TP</h4>
+                        <div class="kpi-value" id="kpiAverageTp">0.00</div>
+                        <div class="kpi-subtext">Skala TP 1.0 - TP 6.0</div>
+                    </div>
+                    <div class="kpi-icon-badge" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">
+                        <i data-lucide="award"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card kpi-card" style="--accent-primary: #f59e0b;">
+                    <div class="kpi-info">
+                        <h4>Cemerlang (TP 5 & 6)</h4>
+                        <div class="kpi-value" id="kpiExcellenceRate">0%</div>
+                        <div class="kpi-subtext" id="kpiExcellenceCount">0 Murid Berprestasi Tinggi</div>
+                    </div>
+                    <div class="kpi-icon-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+                        <i data-lucide="sparkles"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-section">
+                <div class="glass-card chart-box col-8">
+                    <div class="chart-header">
+                        <div>
+                            <h3 id="chartDistTitle">Taburan Tahap Penguasaan (TP 1 - TP 6)</h3>
+                            <p style="font-size: 0.775rem; color: var(--text-muted);">Bilangan murid bagi setiap tahap penguasaan dalam mata pelajaran dipilih</p>
+                        </div>
+                        <span class="sync-badge" style="background: var(--accent-light); color: var(--accent-primary);" id="activeSubjectBadge">Semua Subjek</span>
+                    </div>
+                    <div class="chart-container-inner">
+                        <canvas id="tpBarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-box col-4">
+                    <div class="chart-header">
+                        <div>
+                            <h3>Status Penguasaan MTM</h3>
+                            <p style="font-size: 0.775rem; color: var(--text-muted);">Perbandingan TP 3-6 vs Belum Menguasai</p>
+                        </div>
+                    </div>
+                    <div class="chart-container-inner">
+                        <canvas id="mtmDoughnutChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-box col-8">
+                    <div class="chart-header">
+                        <div>
+                            <h3>Analisis Purata TP Mengikut Mata Pelajaran</h3>
+                            <p style="font-size: 0.775rem; color: var(--text-muted);">Perbandingan pencapaian purata skor semua 13 mata pelajaran KSSR</p>
+                        </div>
+                    </div>
+                    <div class="chart-container-inner">
+                        <canvas id="subjectComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-box col-4">
+                    <div class="chart-header">
+                        <div>
+                            <h3>Pencapaian Berdasarkan Jantina</h3>
+                            <p style="font-size: 0.775rem; color: var(--text-muted);">Purata TP murid Lelaki vs Perempuan</p>
+                        </div>
+                    </div>
+                    <div class="chart-container-inner">
+                        <canvas id="genderComparisonChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- KANDUNGAN TAB 2: JADUAL & KEMAS KINI REKOD PELAJAR -->
+        <div id="paneTable" class="tab-pane">
+            <section class="glass-panel table-section">
+                <div class="table-header-controls">
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700;">Pengurusan Rekod & Markah PBD</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);" id="tableRecordCount">Memaparkan rekod murid</p>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <button id="masterEditToggleBtn" class="master-edit-toggle" title="Klik untuk aktifkan kemas kini pantas TP terus pada jadual">
+                            <i data-lucide="edit-3"></i>
+                            <span id="masterEditLabel">Mod Suntingan Pantas: Mati</span>
+                        </button>
+                        <button id="openAddStudentModalBtn" class="action-btn primary" title="Daftar Murid Baharu">
+                            <i data-lucide="user-plus"></i>
+                            <span>Tambah Murid</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="pbd-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">No</th>
+                                <th>Nama Murid</th>
+                                <th>Aliran</th>
+                                <th>Jantina</th>
+                                <th title="Bahasa Melayu">BM</th>
+                                <th title="Bahasa Inggeris">BI</th>
+                                <th title="Matematik">MAT</th>
+                                <th title="Sains">SN</th>
+                                <th title="Pendidikan Islam">PI</th>
+                                <th title="Bahasa Arab">BA</th>
+                                <th title="Pendidikan Moral">PM</th>
+                                <th title="Bahasa Tamil">BT</th>
+                                <th title="Muzik">MZ</th>
+                                <th title="Pendidikan Seni Visual">PSV</th>
+                                <th title="Reka Bentuk & Teknologi">RBT</th>
+                                <th title="Sejarah">SEJ</th>
+                                <th title="Pendidikan Jasmani & Kesihatan">PJK</th>
+                                <th>Purata TP</th>
+                                <th>Ulasan Guru</th>
+                                <th style="text-align: center;">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <tr>
+                                <td colspan="20" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                    Sila log masuk untuk memuat data pentaksiran murid.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-pagination">
+                    <span id="paginationInfo">Menunjukkan 0 hingga 0 daripada 0 murid</span>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Baris:</span>
+                            <select id="pageSizeSelect" class="form-select" style="width: auto; padding: 0.35rem 0.65rem; font-size: 0.8rem;">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        <div class="pagination-btn-group">
+                            <button id="prevPageBtn" class="action-btn" style="padding: 0.35rem 0.75rem;" disabled>Sebelumnya</button>
+                            <button id="nextPageBtn" class="action-btn" style="padding: 0.35rem 0.75rem;" disabled>Seterusnya</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- KANDUNGAN TAB 3: TETAPAN & PENGURUSAN PENGGUNA -->
+        <div id="paneSettings" class="tab-pane">
+            <!-- Bahagian Pengurusan Pengguna (HANYA UNTUK ROLE ADMIN) -->
+            <div id="adminUserManagementSection" class="glass-panel" style="padding: 1.5rem; display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700;">Pengurusan Akses & Pengguna</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Hanya pentadbir (ADMIN) dibenarkan menambah atau memadam akaun guru/staf.</p>
+                    </div>
+                    <button id="openAddUserModalBtn" class="action-btn primary">
+                        <i data-lucide="user-plus"></i> Tambah Pengguna Baharu
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="pbd-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Emel Pengguna</th>
+                                <th>Nama Penuh</th>
+                                <th>Peranan (Role)</th>
+                                <th>Status</th>
+                                <th>Tarikh Daftar</th>
+                                <th style="text-align: center;">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">Memuatkan senarai pengguna...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bahagian Ubah Kata Laluan Sendiri (Untuk SEMUA pengguna: Guru, Staf & Admin) -->
+            <div class="glass-card" style="max-width: 600px; padding: 1.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <div class="brand-icon" style="width: 42px; height: 42px; background: linear-gradient(135deg, #10b981, #059669);">
+                        <i data-lucide="key-round"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 700;">Tukar Kata Laluan Akaun Anda</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Kemas kini kata laluan anda untuk keselamatan akses.</p>
+                    </div>
+                </div>
+
+                <form id="changeOwnPasswordForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Kata Laluan Baharu (Minimum 8 aksara)</label>
+                        <input type="password" id="ownNewPassword" class="form-input" placeholder="••••••••" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sahkan Kata Laluan Baharu</label>
+                        <input type="password" id="ownConfirmPassword" class="form-input" placeholder="••••••••" required minlength="8">
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+                        <button type="submit" id="saveOwnPasswordBtn" class="action-btn primary">
+                            <i data-lucide="check"></i> Simpan Kata Laluan Baharu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Pengguna Baharu (Admin Sahaja) -->
+    <div class="modal-overlay" id="addUserModal">
+        <div class="glass-card modal-window" style="max-width: 550px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="brand-icon" style="width: 42px; height: 42px;">
+                        <i data-lucide="user-plus"></i>
+                    </div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700;">Daftar Pengguna Baharu</h2>
+                </div>
+                <button class="action-btn" id="closeAddUserModalBtn" style="padding: 0.4rem 0.7rem;"><i data-lucide="x"></i></button>
+            </div>
+
+            <form id="addUserForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Emel Rasmi Pengguna</label>
+                    <input type="email" id="newUserEmail" class="form-input" placeholder="guru@sekolah.edu.my" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nama Penuh Pengguna</label>
+                    <input type="text" id="newUserName" class="form-input" placeholder="Cikgu Azman bin Kassim" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Peranan (Role)</label>
+                    <select id="newUserRole" class="form-select" required>
+                        <option value="GURU" selected>GURU (Lihat & Kemas Kini PBD)</option>
+                        <option value="STAF">STAF (Lihat Rekod)</option>
+                        <option value="ADMIN">ADMIN (Kuasa Penuh & Pengurusan Pengguna)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kata Laluan Sementara</label>
+                    <input type="password" id="newUserTempPassword" class="form-input" placeholder="Min 8 aksara (Cth: GuruCemerlang2026)" required minlength="8">
+                    <small style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                        Kata laluan sementara ini akan dihantar terus ke emel pengguna. Pengguna wajib menukarnya semasa log masuk pertama.
+                    </small>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+                    <button type="button" class="action-btn" id="cancelAddUserBtn">Batal</button>
+                    <button type="submit" id="saveNewUserBtn" class="action-btn primary">
+                        <i data-lucide="send"></i> Daftar & Emelkan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Murid Baharu -->
+    <div class="modal-overlay" id="addStudentModal">
+        <div class="glass-card modal-window" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="brand-icon" style="width: 42px; height: 42px;">
+                        <i data-lucide="user-plus"></i>
+                    </div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700;">Tambah Murid Baharu</h2>
+                </div>
+                <button class="action-btn" id="closeAddStudentModalBtn" style="padding: 0.4rem 0.7rem;"><i data-lucide="x"></i></button>
+            </div>
+
+            <form id="addStudentForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Nama Penuh Murid</label>
+                    <input type="text" id="addStudentName" class="form-input" placeholder="Contoh: AHMAD DANIAL BIN ZAMRI" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Tahun / Aliran</label>
+                        <select id="addStudentYear" class="form-select" required>
+                            <option value="4">Tahun 4</option>
+                            <option value="5">Tahun 5</option>
+                            <option value="6">Tahun 6</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jantina</label>
+                        <select id="addStudentGender" class="form-select" required>
+                            <option value="L">Lelaki (L)</option>
+                            <option value="P">Perempuan (P)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ulasan Guru (Lalai)</label>
+                    <textarea id="addStudentComment" class="form-input" rows="2" placeholder="Komitmen murid dalam kelas memuaskan."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+                    <button type="button" class="action-btn" id="cancelAddStudentBtn">Batal</button>
+                    <button type="submit" id="saveNewStudentBtn" class="action-btn primary">
+                        <i data-lucide="save"></i> Simpan Murid
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Maklumat Murid (Nama, Jantina, Ulasan) -->
+    <div class="modal-overlay" id="editStudentModal">
+        <div class="glass-card modal-window" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="brand-icon" style="width: 42px; height: 42px;">
+                        <i data-lucide="user-cog"></i>
+                    </div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700;">Kemaskini Maklumat Murid</h2>
+                </div>
+                <button class="action-btn" id="closeEditStudentModalBtn" style="padding: 0.4rem 0.7rem;"><i data-lucide="x"></i></button>
+            </div>
+
+            <form id="editStudentForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" id="editStudentOriginalName">
+                <input type="hidden" id="editStudentYear">
+
+                <div class="form-group">
+                    <label class="form-label">Nama Murid</label>
+                    <input type="text" id="editStudentName" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Jantina</label>
+                    <select id="editStudentGender" class="form-select" required>
+                        <option value="L">Lelaki (L)</option>
+                        <option value="P">Perempuan (P)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ulasan Guru</label>
+                    <textarea id="editStudentComment" class="form-input" rows="3"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+                    <button type="button" class="action-btn" id="cancelEditStudentBtn">Batal</button>
+                    <button type="submit" id="updateStudentBtn" class="action-btn primary">
+                        <i data-lucide="save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Log Masuk -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="glass-card auth-card">
+            <div style="text-align: center;">
+                <div class="brand-icon" style="margin: 0 auto 0.75rem auto; width: 64px; height: 64px; padding: 4px; background: rgba(255, 255, 255, 0.95); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35); overflow: hidden;">
+                    <img src="https://lh3.googleusercontent.com/d/1ZxjvCwnXbnRXyzJcdlgxIYw-RzBF6stA" alt="Logo Rasmi PBD" class="brand-logo-img" onerror="this.onerror=null; this.src='https://placehold.co/128x128/4f46e5/ffffff?text=PBD';">
+                </div>
+                <h2 style="font-size: 1.35rem; font-weight: 700;">Log Masuk Selamat</h2>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Sistem Dashboard & Analisis PBD KSSR</p>
+            </div>
+
+            <form id="loginForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Emel Pengguna</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="contoh: admin@sekolah.edu.my" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label class="form-label">Kata Laluan</label>
+                        <button type="button" id="forgotPasswordLinkBtn" style="background: none; border: none; font-size: 0.75rem; color: var(--accent-primary); cursor: pointer; text-decoration: underline;">
+                            Lupa Kata Laluan?
+                        </button>
+                    </div>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+
+                <div class="pdpa-box">
+                    <strong>Notis Perlindungan Data (PDPA):</strong> Akses adalah terhad kepada guru & pentadbir berdaftar sahaja. Aktiviti log masuk dan capaian rekod murid dipantau untuk tujuan audit keselamatan rasmi.
+                </div>
+
+                <button type="submit" id="submitLoginBtn" class="action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+                    <i data-lucide="log-in"></i> Log Masuk
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Lupa Password (Self-Service Reset Kod 6-Digit) -->
+    <div class="modal-overlay" id="forgotPasswordModal">
+        <div class="glass-card auth-card" style="max-width: 480px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="brand-icon" style="width: 42px; height: 42px; background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+                        <i data-lucide="mail-question"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700;">Lupa Kata Laluan</h2>
+                        <p style="font-size: 0.785rem; color: var(--text-muted);">Reset selamat melalui kod 6-digit ke emel</p>
+                    </div>
+                </div>
+                <button class="action-btn" id="closeForgotModalBtn" style="padding: 0.35rem 0.6rem;"><i data-lucide="x"></i></button>
+            </div>
+
+            <!-- Fasa 1: Masukkan Emel -->
+            <form id="forgotStep1Form" style="display: flex; flex-direction: column; gap: 1rem;">
+                <p style="font-size: 0.825rem; color: var(--text-secondary);">
+                    Masukkan emel berdaftar anda. Kod pengesahan 6-digit dengan tempoh sah 15 minit akan dihantar ke emel anda.
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Emel Berdaftar</label>
+                    <input type="email" id="forgotEmailInput" class="form-input" placeholder="nama@sekolah.edu.my" required>
+                </div>
+                <button type="submit" id="requestResetCodeBtn" class="action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+                    <i data-lucide="send"></i> Hantar Kod Pengesahan
+                </button>
+            </form>
+
+            <!-- Fasa 2: Masukkan Kod & Password Baharu -->
+            <form id="forgotStep2Form" style="display: none; flex-direction: column; gap: 1rem;">
+                <div style="padding: 0.65rem 0.85rem; border-radius: 0.6rem; background: var(--accent-light); font-size: 0.8rem; color: var(--accent-primary);">
+                    <i data-lucide="info" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i>
+                    Sila semak peti masuk emel anda untuk mendapatkan kod 6-digit.
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kod Pengesahan 6-Digit</label>
+                    <input type="text" id="resetCodeInput" class="form-input" placeholder="123456" maxlength="6" pattern="[0-9]{6}" required style="letter-spacing: 0.25em; font-weight: 700; text-align: center; font-size: 1.2rem;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kata Laluan Baharu (Min 8 Aksara)</label>
+                    <input type="password" id="resetNewPasswordInput" class="form-input" placeholder="••••••••" required minlength="8">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sahkan Kata Laluan Baharu</label>
+                    <input type="password" id="resetConfirmPasswordInput" class="form-input" placeholder="••••••••" required minlength="8">
+                </div>
+                <button type="submit" id="submitResetPasswordBtn" class="action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+                    <i data-lucide="check-circle-2"></i> Tetapkan Semula Kata Laluan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Wajib Tukar Kata Laluan -->
+    <div class="modal-overlay" id="forcePasswordModal">
+        <div class="glass-card auth-card">
+            <div style="text-align: center;">
+                <div class="brand-icon" style="margin: 0 auto 0.75rem auto; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <i data-lucide="key-round"></i>
+                </div>
+                <h2 style="font-size: 1.3rem; font-weight: 700;">Tukar Kata Laluan Awal</h2>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Untuk keselamatan akaun anda, sila tetapkan kata laluan baharu sebelum meneruskan.</p>
+            </div>
+
+            <form id="forcePasswordForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Kata Laluan Baharu (Min 8 Aksara)</label>
+                    <input type="password" id="newPasswordInput" class="form-input" placeholder="••••••••" required minlength="8">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sahkan Kata Laluan Baharu</label>
+                    <input type="password" id="confirmPasswordInput" class="form-input" placeholder="••••••••" required minlength="8">
+                </div>
+
+                <button type="submit" id="submitNewPasswordBtn" class="action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+                    <i data-lucide="save"></i> Simpan & Teruskan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Slip Pentaksiran Murid -->
+    <div class="modal-overlay" id="studentSlipModal">
+        <div class="glass-card modal-window">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                    <div class="brand-icon" style="width: 44px; height: 44px;">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700;" id="slipStudentName">Nama Murid</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);" id="slipStudentMeta">Tahun • Jantina</p>
+                    </div>
+                </div>
+                <button class="action-btn" id="closeSlipBtn" style="padding: 0.4rem 0.7rem;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                <div class="glass-panel" style="padding: 1rem; border-radius: 0.85rem;">
+                    <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-secondary);">Profil Penguasaan Subjek</h4>
+                    <div style="height: 250px; position: relative;">
+                        <canvas id="studentRadarChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div class="glass-panel" style="padding: 1rem; border-radius: 0.85rem;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Purata Tahap Penguasaan</span>
+                        <div style="font-size: 2rem; font-weight: 800; color: var(--accent-primary);" id="slipAverageScore">0.0</div>
+                        <div id="slipMtmBadge"></div>
+                    </div>
+                    <div class="glass-panel" style="padding: 1rem; border-radius: 0.85rem; flex: 1;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Ulasan & Pandangan Guru</span>
+                        <p id="slipTeacherComment" style="font-size: 0.875rem; margin-top: 0.5rem; line-height: 1.6; color: var(--text-primary); font-style: italic;">
+                            "Tiada ulasan."
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-secondary);">Perincian Setiap Mata Pelajaran</h4>
+                <div id="slipSubjectGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button class="action-btn" onclick="window.print()">
+                    <i data-lucide="printer"></i> Cetak Slip
+                </button>
+                <button class="action-btn primary" id="closeSlipBtnBottom">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ============================================================================
+        // 1. TAMPAL URL APPS SCRIPT DI SINI SELEPAS DEPLOY:
+        // ============================================================================
+        // PENTING: Dapatkan URL ini dari Apps Script: Deploy > New deployment > Web app.
+        // Salin URL yang berakhir dengan /exec
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbz-Cbxxh4GWRyIsLPKZUD4VhF6Lj995rRU1nxFo0xbUOGX4ucVfqo3TP7YTjaq5wA12/exec";
+
+        // Senarai 13 Mata Pelajaran KSSR PBD
+        const SUBJECT_KEYS = [
+            { id: "B.MELAYU", label: "B. Melayu", short: "BM" },
+            { id: "B.INGGERIS", label: "B. Inggeris", short: "BI" },
+            { id: "MATEMATIK", label: "Matematik", short: "MAT" },
+            { id: "SAINS", label: "Sains", short: "SN" },
+            { id: "PEND ISLAM", label: "Pend Islam", short: "PI" },
+            { id: "B.ARAB", label: "B. Arab", short: "BA" },
+            { id: "PEND MORAL", label: "Pend Moral", short: "PM" },
+            { id: "B.TAMIL", label: "B. Tamil", short: "BT" },
+            { id: "MUZIK", label: "Muzik", short: "MZ" },
+            { id: "PEND SENI VISUAL", label: "Pend Seni Visual", short: "PSV" },
+            { id: "RBT", label: "RBT", short: "RBT" },
+            { id: "SEJARAH", label: "Sejarah", short: "SEJ" },
+            { id: "PJ KESIHATAN", label: "PJ Kesihatan", short: "PJK" }
+        ];
+
+        // Global State
+        let sessionToken = localStorage.getItem("PBD_SESSION_TOKEN") || null;
+        let currentUser = JSON.parse(localStorage.getItem("PBD_USER_PROFILE") || "null");
+
+        let allStudentsData = [];
+        let filteredStudents = [];
+        let currentPage = 1;
+        let pageSize = 25;
+        let selectedYear = "ALL";
+        let selectedSubject = "ALL";
+        let selectedGender = "ALL";
+        let selectedTpFilter = "ALL";
+        let searchQuery = "";
+        let isDirectEditMode = false; // Status mod edit langsung
+
+        // Chart Instances
+        let chartInstances = {
+            tpBar: null,
+            mtmDoughnut: null,
+            subjectComparison: null,
+            genderComparison: null,
+            studentRadar: null
+        };
+
+        // ============================================================================
+        // 2. FUNGSI PANGGILAN API SELAMAT (TEXT/PLAIN MENGELAKKAN CORS PREFLIGHT)
+        // ============================================================================
+        async function panggilAPI(payload) {
+            if (!GAS_URL || GAS_URL.includes("GANTI_DENGAN_URL_WEB_APP_ANDA")) {
+                throw new Error("Sila tetapkan pemboleh ubah GAS_URL dengan URL Apps Script (/exec) yang sah.");
+            }
+
+            // Sertakan session token jika ada
+            if (sessionToken && !payload.token) {
+                payload.token = sessionToken;
+            }
+
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ralat pelayan HTTP: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result;
+        }
+
+
+        // Papar atau tutup modal log masuk
+        function bukaModalLogin() {
+            document.getElementById("loginModal").classList.add("active");
+            document.getElementById("loginEmail").focus();
+        }
+
+        function tutupModalLogin() {
+            document.getElementById("loginModal").classList.remove("active");
+        }
+
+        function bukaModalForcePassword() {
+            document.getElementById("forcePasswordModal").classList.add("active");
+            document.getElementById("newPasswordInput").focus();
+        }
+
+        function tutupModalForcePassword() {
+            document.getElementById("forcePasswordModal").classList.remove("active");
+        }
+
+        function kemaskiniUIProfil() {
+            const profileBox = document.getElementById("userProfileBadge");
+            const nameEl = document.getElementById("userDisplayName");
+            const adminSection = document.getElementById("adminUserManagementSection");
+            const openAddBtn = document.getElementById("openAddStudentModalBtn");
+
+            if (currentUser && sessionToken) {
+                nameEl.textContent = `${currentUser.nama || currentUser.emel} (${currentUser.role || 'GURU'})`;
+                profileBox.style.display = "inline-flex";
+
+                // Kawalan Peranan UI: Admin sahaja boleh urus pengguna
+                if (currentUser.role === "ADMIN") {
+                    if (adminSection) adminSection.style.display = "block";
+                    if (openAddBtn) openAddBtn.style.display = "inline-flex";
+                } else {
+                    if (adminSection) adminSection.style.display = "none";
+                    if (openAddBtn) openAddBtn.style.display = "none"; // Hanya admin daftar murid
+                }
+            } else {
+                profileBox.style.display = "none";
+            }
+        }
+
+        async function muatSenaraiPengguna() {
+            if (!currentUser || currentUser.role !== "ADMIN") return;
+            try {
+                const res = await panggilAPI({ action: "SENARAI_USERS" });
+                if (res.success) {
+                    renderSenaraiPengguna(res.users || []);
+                } else {
+                    showToast(res.message || "Gagal memuat senarai pengguna.", "error");
+                }
+            } catch (err) {
+                console.error("Ralat muat pengguna:", err);
+            }
+        }
+
+        function renderSenaraiPengguna(users) {
+            const tbody = document.getElementById("userTableBody");
+            if (!tbody) return;
+
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">Tiada pengguna ditemui.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            users.forEach((u, idx) => {
+                const isSelf = currentUser && currentUser.emel.toLowerCase() === u.emel.toLowerCase();
+                const isUserAdmin = u.role === "ADMIN";
+                
+                html += `<tr>
+                    <td><strong>${idx + 1}</strong></td>
+                    <td style="font-weight: 600;">${u.emel} ${isSelf ? '<span style="font-size: 0.7rem; color: var(--accent-primary);">(Anda)</span>' : ''}</td>
+                    <td>${u.nama}</td>
+                    <td><span class="badge-tp" style="background: ${isUserAdmin ? 'rgba(79, 70, 229, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${isUserAdmin ? '#4f46e5' : '#10b981'};">${u.role}</span></td>
+                    <td><span class="sync-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">${u.status}</span></td>
+                    <td style="font-size: 0.8rem; color: var(--text-muted);">${u.tarikhDaftar || '-'}</td>
+                    <td style="text-align: center;">
+                        <button class="action-btn danger" style="padding: 0.3rem 0.55rem; font-size: 0.75rem;" onclick="padamPengguna('${u.emel}')" title="Padam Pengguna">
+                            <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i> Padam
+                        </button>
+                    </td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        window.padamPengguna = async function(emelTarget) {
+            if (!confirm(`Adakah anda pasti ingin memadamkan akses pengguna [${emelTarget}]?`)) return;
+
+            try {
+                const res = await panggilAPI({
+                    action: "PADAM_USER",
+                    emel: emelTarget
+                });
+
+                if (res.success) {
+                    showToast(res.message, "success");
+                    muatSenaraiPengguna();
+                } else {
+                    showToast(res.message, "error");
+                }
+            } catch (err) {
+                showToast("Ralat pemadaman: " + err.message, "error");
+            }
+        };
+
+        window.padamMurid = async function(thn, namaMurid) {
+            if (!confirm(`Adakah anda pasti ingin memadam rekod murid "${namaMurid}" dari Tahun ${thn}? Tindakan ini tidak boleh diundur.`)) return;
+
+            try {
+                const res = await panggilAPI({
+                    action: "PADAM_MURID",
+                    tahun: thn,
+                    nama: namaMurid
+                });
+
+                if (res.success) {
+                    showToast(res.message, "success");
+                    muatDataPBDDariAPI();
+                } else {
+                    showToast(res.message, "error");
+                }
+            } catch (err) {
+                showToast("Ralat: " + err.message, "error");
+            }
+        };
+
+        async function muatDataPBDDariAPI() {
+            if (!sessionToken) {
+                bukaModalLogin();
+                return;
+            }
+
+            setSyncStatus("loading", "Menyegerakkan dari Apps Script...");
+            try {
+                const res = await panggilAPI({
+                    action: "DAPATKAN_DATA_PBD",
+                    tahun: selectedYear
+                });
+
+                if (res.success) {
+                    allStudentsData = res.students || [];
+                    setSyncStatus("success", `Segerak Selamat (${allStudentsData.length} Rekod)`);
+                    showToast(`Berjaya menyegerakkan ${allStudentsData.length} rekod PBD dari Google Sheets!`, "success");
+                    applyFiltersAndRender();
+                } else {
+                    if (res.error === "UNAUTHORIZED") {
+                        // Sesi telah tamat tempoh di pelayan
+                        showToast(res.message || "Sesi anda telah tamat. Sila log masuk semula.", "error");
+                        logoutPengguna(false);
+                    } else {
+                        throw new Error(res.message || "Gagal mendapatkan data murid.");
+                    }
+                }
+            } catch (err) {
+                console.error("Ralat panggil API:", err);
+                setSyncStatus("error", "Ralat Segerak Data");
+                showToast(err.message, "error");
+            }
+        }
+
+        async function logoutPengguna(panggilServer = true) {
+            if (panggilServer && sessionToken) {
+                try {
+                    await panggilAPI({ action: "LOGOUT", token: sessionToken });
+                } catch (e) {
+                    // Abaikan ralat semasa logout
+                }
+            }
+            sessionToken = null;
+            currentUser = null;
+            localStorage.removeItem("PBD_SESSION_TOKEN");
+            localStorage.removeItem("PBD_USER_PROFILE");
+            allStudentsData = [];
+            filteredStudents = [];
+            kemaskiniUIProfil();
+            updateKPICards();
+            renderCharts();
+            renderTable();
+            bukaModalLogin();
+            showToast("Anda telah berjaya log keluar.", "info");
+        }
+
+
+        function applyFiltersAndRender() {
+            filteredStudents = allStudentsData.filter(student => {
+                if (selectedYear !== "ALL" && student.tahun !== selectedYear) return false;
+                if (selectedGender !== "ALL" && student.jantina !== selectedGender) return false;
+
+                if (searchQuery.trim() !== "") {
+                    const q = searchQuery.toLowerCase();
+                    if (!student.nama.toLowerCase().includes(q)) return false;
+                }
+
+                if (selectedTpFilter !== "ALL") {
+                    let scoreToCheck = student.avgTp;
+                    if (selectedSubject !== "ALL") {
+                        scoreToCheck = student.scores[selectedSubject] || 0;
+                    }
+
+                    if (selectedTpFilter === "MTM") {
+                        if (scoreToCheck < 3) return false;
+                    } else if (selectedTpFilter === "BTM") {
+                        if (scoreToCheck >= 3) return false;
+                    } else {
+                        const targetTp = parseInt(selectedTpFilter, 10);
+                        if (Math.round(scoreToCheck) !== targetTp) return false;
+                    }
+                }
+
+                return true;
+            });
+
+            currentPage = 1;
+            updateKPICards();
+            renderCharts();
+            renderTable();
+        }
+
+        function updateKPICards() {
+            const total = filteredStudents.length;
+            const elTotal = document.getElementById("kpiTotalStudents");
+            const elGenderRatio = document.getElementById("kpiGenderRatio");
+            const elMtmRate = document.getElementById("kpiMtmRate");
+            const elMtmCount = document.getElementById("kpiMtmCount");
+            const elAvgTp = document.getElementById("kpiAverageTp");
+            const elExcellenceRate = document.getElementById("kpiExcellenceRate");
+            const elExcellenceCount = document.getElementById("kpiExcellenceCount");
+
+            if (total === 0) {
+                elTotal.textContent = "0";
+                elGenderRatio.textContent = "0 L • 0 P";
+                elMtmRate.textContent = "0%";
+                elMtmCount.textContent = "0 / 0 Murid";
+                elAvgTp.textContent = "0.00";
+                elExcellenceRate.textContent = "0%";
+                elExcellenceCount.textContent = "0 Murid";
+                return;
+            }
+
+            const countL = filteredStudents.filter(s => s.jantina === "L").length;
+            const countP = filteredStudents.filter(s => s.jantina === "P").length;
+
+            let mtmCount = 0;
+            let sumAvg = 0;
+            let excellentCount = 0;
+
+            filteredStudents.forEach(student => {
+                let score = (selectedSubject === "ALL") ? student.avgTp : (student.scores[selectedSubject] || 0);
+                if (score >= 3) mtmCount++;
+                if (score >= 5) excellentCount++;
+                sumAvg += score;
+            });
+
+            const mtmPercent = ((mtmCount / total) * 100).toFixed(1);
+            const excellencePercent = ((excellentCount / total) * 100).toFixed(1);
+            const overallAvg = (sumAvg / total).toFixed(2);
+
+            elTotal.textContent = total;
+            elGenderRatio.textContent = `${countL} Lelaki • ${countP} Perempuan`;
+            elMtmRate.textContent = `${mtmPercent}%`;
+            elMtmCount.textContent = `${mtmCount} / ${total} Menguasai (≥ TP3)`;
+            elAvgTp.textContent = overallAvg;
+            elExcellenceRate.textContent = `${excellencePercent}%`;
+            elExcellenceCount.textContent = `${excellentCount} Murid (TP 5 & 6)`;
+        }
+
+
+        function renderCharts() {
+            const isDark = document.body.getAttribute("data-theme") === "dark";
+            const textColor = isDark ? "#cbd5e1" : "#475569";
+            const gridColor = isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)";
+
+            const subjectObj = SUBJECT_KEYS.find(s => s.id === selectedSubject);
+            document.getElementById("activeSubjectBadge").textContent = subjectObj ? subjectObj.label : "Purata Keseluruhan";
+            document.getElementById("chartDistTitle").textContent = `Taburan TP (${subjectObj ? subjectObj.label : "Purata Keseluruhan"})`;
+
+            const tpBins = [0, 0, 0, 0, 0, 0];
+            filteredStudents.forEach(s => {
+                const score = (selectedSubject === "ALL") ? Math.round(s.avgTp) : (s.scores[selectedSubject] || 0);
+                if (score >= 1 && score <= 6) {
+                    tpBins[score - 1]++;
+                }
+            });
+
+            // 1. Bar Chart: TP 1 - 6
+            const tpCtx = document.getElementById("tpBarChart").getContext("2d");
+            if (chartInstances.tpBar) chartInstances.tpBar.destroy();
+
+            chartInstances.tpBar = new Chart(tpCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['TP 1', 'TP 2', 'TP 3', 'TP 4', 'TP 5', 'TP 6'],
+                    datasets: [{
+                        label: 'Bilangan Murid',
+                        data: tpBins,
+                        backgroundColor: ['#ef4444', '#f97316', '#eab308', '#0ea5e9', '#22c55e', '#a855f7'],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.raw} Murid (${((ctx.raw / (filteredStudents.length || 1)) * 100).toFixed(1)}%)`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, precision: 0 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: textColor, font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+
+            // 2. MTM Doughnut Chart
+            const mtmCount = tpBins[2] + tpBins[3] + tpBins[4] + tpBins[5];
+            const btmCount = tpBins[0] + tpBins[1];
+            const mtmCtx = document.getElementById("mtmDoughnutChart").getContext("2d");
+            if (chartInstances.mtmDoughnut) chartInstances.mtmDoughnut.destroy();
+
+            chartInstances.mtmDoughnut = new Chart(mtmCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Menguasai (TP 3-6)', 'Belum Menguasai (TP 1-2)'],
+                    datasets: [{
+                        data: [mtmCount, btmCount],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: textColor, boxWidth: 12, padding: 15 }
+                        }
+                    }
+                }
+            });
+
+            // 3. Subject Comparison Chart
+            const subjectAverages = SUBJECT_KEYS.map(sub => {
+                if (filteredStudents.length === 0) return 0;
+                const sum = filteredStudents.reduce((acc, curr) => acc + (curr.scores[sub.id] || 0), 0);
+                return (sum / filteredStudents.length).toFixed(2);
+            });
+
+            const subCompCtx = document.getElementById("subjectComparisonChart").getContext("2d");
+            if (chartInstances.subjectComparison) chartInstances.subjectComparison.destroy();
+
+            chartInstances.subjectComparison = new Chart(subCompCtx, {
+                type: 'bar',
+                data: {
+                    labels: SUBJECT_KEYS.map(s => s.short),
+                    datasets: [{
+                        label: 'Purata Skor TP',
+                        data: subjectAverages,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => SUBJECT_KEYS[items[0].dataIndex].label,
+                                label: (ctx) => ` Purata TP: ${ctx.raw} / 6.0`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 6,
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, stepSize: 1 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: textColor }
+                        }
+                    }
+                }
+            });
+
+            // 4. Gender Comparison Chart
+            const boys = filteredStudents.filter(s => s.jantina === "L");
+            const girls = filteredStudents.filter(s => s.jantina === "P");
+            const boysAvg = boys.length ? (boys.reduce((a, b) => a + b.avgTp, 0) / boys.length).toFixed(2) : 0;
+            const girlsAvg = girls.length ? (girls.reduce((a, b) => a + b.avgTp, 0) / girls.length).toFixed(2) : 0;
+
+            const genderCtx = document.getElementById("genderComparisonChart").getContext("2d");
+            if (chartInstances.genderComparison) chartInstances.genderComparison.destroy();
+
+            chartInstances.genderComparison = new Chart(genderCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Lelaki', 'Perempuan'],
+                    datasets: [{
+                        data: [boysAvg, girlsAvg],
+                        backgroundColor: ['#3b82f6', '#ec4899'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` Purata Keseluruhan: ${ctx.raw} TP`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 6,
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, stepSize: 1 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: textColor, font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTable() {
+            const tableBody = document.getElementById("studentTableBody");
+            const total = filteredStudents.length;
+
+            if (total === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="20" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="search-x" style="width: 32px; height: 32px; opacity: 0.5;"></i>
+                                <p>Tiada data murid memenuhi kriteria penapisan semasa.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById("paginationInfo").textContent = "0 rekod dijumpai";
+                lucide.createIcons();
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, total);
+            const pageStudents = filteredStudents.slice(startIndex, endIndex);
+
+            let html = "";
+            pageStudents.forEach((student, index) => {
+                const globalIndex = startIndex + index;
+                const rowNum = globalIndex + 1;
+                const genderClass = student.jantina === "L" ? "gender-l" : "gender-p";
+                const genderLabel = student.jantina === "L" ? "Lelaki" : "Perempuan";
+
+                html += `<tr>
+                    <td><strong>${rowNum}</strong></td>
+                    <td style="font-weight: 600;">${student.nama}</td>
+                    <td><span class="badge-tp" style="background: var(--accent-light); color: var(--accent-primary);">Tahun ${student.tahun}</span></td>
+                    <td><span class="gender-badge ${genderClass}">${genderLabel}</span></td>
+                    ${SUBJECT_KEYS.map(sub => {
+                        const score = student.scores[sub.id] || 0;
+                        if (isDirectEditMode) {
+                            return `<td>
+                                <select class="tp-cell-select" onchange="quickUpdateTp(${globalIndex}, '${sub.id}', this.value, this)">
+                                    <option value="" ${score === 0 ? 'selected' : ''}>-</option>
+                                    <option value="1" ${score === 1 ? 'selected' : ''}>TP 1</option>
+                                    <option value="2" ${score === 2 ? 'selected' : ''}>TP 2</option>
+                                    <option value="3" ${score === 3 ? 'selected' : ''}>TP 3</option>
+                                    <option value="4" ${score === 4 ? 'selected' : ''}>TP 4</option>
+                                    <option value="5" ${score === 5 ? 'selected' : ''}>TP 5</option>
+                                    <option value="6" ${score === 6 ? 'selected' : ''}>TP 6</option>
+                                </select>
+                            </td>`;
+                        } else {
+                            return `<td><span class="badge-tp tp-${score}" style="cursor: pointer;" title="Klik dua kali atau aktifkan Mod Suntingan Pantas" ondblclick="toggleDirectEditMode(true)">${score ? 'TP ' + score : '-'}</span></td>`;
+                        }
+                    }).join('')}
+                    <td><strong style="color: var(--accent-primary);">${student.avgTp.toFixed(2)}</strong></td>
+                    <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${student.ulasan}">
+                        ${student.ulasan}
+                    </td>
+                    <td style="text-align: center; white-space: nowrap;">
+                        <button class="action-btn" style="padding: 0.3rem 0.55rem; font-size: 0.75rem; margin-right: 0.25rem;" onclick="openEditStudentModal(${globalIndex})" title="Edit Profil Murid">
+                            <i data-lucide="edit-2" style="width: 13px; height: 13px;"></i>
+                        </button>
+                        <button class="action-btn" style="padding: 0.3rem 0.55rem; font-size: 0.75rem; margin-right: 0.25rem;" onclick="viewStudentSlip(${globalIndex})" title="Slip Pentaksiran">
+                            <i data-lucide="file-text" style="width: 13px; height: 13px;"></i> Slip
+                        </button>
+                        ${currentUser && currentUser.role === 'ADMIN' ? `
+                        <button class="action-btn danger" style="padding: 0.3rem 0.55rem; font-size: 0.75rem;" onclick="padamMurid('${student.tahun}', '${student.nama}')" title="Padam Rekod Murid">
+                            <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i>
+                        </button>` : ''}
+                    </td>
+                </tr>`;
+            });
+
+            tableBody.innerHTML = html;
+            document.getElementById("tableRecordCount").textContent = `Menunjukkan ${total} rekod murid yang sepadan`;
+            document.getElementById("paginationInfo").textContent = `Menunjukkan ${startIndex + 1} hingga ${endIndex} daripada ${total} murid`;
+
+            document.getElementById("prevPageBtn").disabled = (currentPage === 1);
+            document.getElementById("nextPageBtn").disabled = (endIndex >= total);
+
+            lucide.createIcons();
+        }
+
+        // ============================================================================
+        // 3. FUNGSI KEMASKINI MARKAH TERUS (DIRECT IN-PLACE EDIT)
+        // ============================================================================
+        window.quickUpdateTp = async function(globalIndex, subjekId, newTpStr, selectEl) {
+            const student = filteredStudents[globalIndex];
+            if (!student) return;
+
+            const newScore = newTpStr === "" ? 0 : parseInt(newTpStr, 10);
+            const oldScore = student.scores[subjekId] || 0;
+            if (newScore === oldScore) return;
+
+            // Simpan lokal sementara
+            student.scores[subjekId] = newScore;
+            
+            // Kira semula purata murid
+            let sum = 0, count = 0;
+            SUBJECT_KEYS.forEach(s => {
+                const sc = student.scores[s.id] || 0;
+                if (sc > 0) { sum += sc; count++; }
+            });
+            student.avgTp = count > 0 ? (sum / count) : 0;
+
+            selectEl.classList.add("saved-flash");
+            setTimeout(() => selectEl.classList.remove("saved-flash"), 800);
+
+            try {
+                const res = await panggilAPI({
+                    action: "KEMASKINI_MARKAH_PBD",
+                    tahun: student.tahun,
+                    namaMurid: student.nama,
+                    subjek: subjekId,
+                    tp: newScore
+                });
+
+                if (res.success) {
+                    showToast(`Markah ${subjekId} ${student.nama} berjaya dikemas kini!`, "success");
+                    updateKPICards();
+                    renderCharts();
+                } else {
+                    student.scores[subjekId] = oldScore; // rollback
+                    showToast(res.message || "Gagal mengemas kini markah di pelayan.", "error");
+                    renderTable();
+                }
+            } catch (err) {
+                student.scores[subjekId] = oldScore;
+                showToast("Ralat kemas kini: " + err.message, "error");
+                renderTable();
+            }
+        };
+
+        window.toggleDirectEditMode = function(forceVal = null) {
+            isDirectEditMode = (forceVal !== null) ? forceVal : !isDirectEditMode;
+            const toggleBtn = document.getElementById("masterEditToggleBtn");
+            const toggleLbl = document.getElementById("masterEditLabel");
+
+            if (isDirectEditMode) {
+                toggleBtn.classList.add("active");
+                toggleLbl.textContent = "Mod Suntingan Pantas: Aktif";
+                showToast("Mod Suntingan Pantas Aktif. Anda boleh terus memilih TP dari dropdown pada jadual.", "info");
+            } else {
+                toggleBtn.classList.remove("active");
+                toggleLbl.textContent = "Mod Suntingan Pantas: Mati";
+            }
+            renderTable();
+        };
+
+        // ============================================================================
+        // 4. MODAL EDIT MAKLUMAT MURID
+        // ============================================================================
+        window.openEditStudentModal = function(globalIndex) {
+            const student = filteredStudents[globalIndex];
+            if (!student) return;
+
+            document.getElementById("editStudentOriginalName").value = student.nama;
+            document.getElementById("editStudentYear").value = student.tahun;
+            document.getElementById("editStudentName").value = student.nama;
+            document.getElementById("editStudentGender").value = student.jantina;
+            document.getElementById("editStudentComment").value = student.ulasan || "";
+
+            document.getElementById("editStudentModal").classList.add("active");
+            lucide.createIcons();
+        };
+
+        window.viewStudentSlip = function(indexInFiltered) {
+            const student = filteredStudents[indexInFiltered];
+            if (!student) return;
+
+            document.getElementById("slipStudentName").textContent = student.nama;
+            document.getElementById("slipStudentMeta").textContent = `Tahun ${student.tahun} • Jantina: ${student.jantina === 'L' ? 'Lelaki' : 'Perempuan'}`;
+            document.getElementById("slipAverageScore").textContent = `${student.avgTp.toFixed(2)} / 6.0`;
+            document.getElementById("slipTeacherComment").textContent = `"${student.ulasan}"`;
+
+            const mtmBadge = document.getElementById("slipMtmBadge");
+            if (student.avgTp >= 3) {
+                mtmBadge.innerHTML = `<span class="badge-tp tp-5" style="padding: 0.3rem 0.7rem; border-radius: 2rem;">Mencapai Tahap Minimum (MTM)</span>`;
+            } else {
+                mtmBadge.innerHTML = `<span class="badge-tp tp-1" style="padding: 0.3rem 0.7rem; border-radius: 2rem;">Perlu Bimbingan & Pemulihan</span>`;
+            }
+
+            const gridEl = document.getElementById("slipSubjectGrid");
+            gridEl.innerHTML = SUBJECT_KEYS.map(sub => {
+                const score = student.scores[sub.id] || 0;
+                return `
+                    <div style="background: var(--glass-bg-card); border: 1px solid var(--glass-border); padding: 0.6rem; border-radius: 0.6rem; text-align: center;">
+                        <div style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">${sub.short}</div>
+                        <div style="margin-top: 0.3rem;"><span class="badge-tp tp-${score}">${score ? 'TP ' + score : '-'}</span></div>
+                    </div>
+                `;
+            }).join('');
+
+            const isDark = document.body.getAttribute("data-theme") === "dark";
+            const textColor = isDark ? "#cbd5e1" : "#475569";
+            const radarCtx = document.getElementById("studentRadarChart").getContext("2d");
+
+            if (chartInstances.studentRadar) chartInstances.studentRadar.destroy();
+
+            chartInstances.studentRadar = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: SUBJECT_KEYS.map(s => s.short),
+                    datasets: [{
+                        label: 'Tahap Penguasaan',
+                        data: SUBJECT_KEYS.map(s => student.scores[s.id] || 0),
+                        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+                        borderColor: '#6366f1',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 6,
+                            ticks: { stepSize: 1, color: textColor, backdropColor: 'transparent' },
+                            grid: { color: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)" },
+                            pointLabels: { color: textColor, font: { weight: '600', size: 10 } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            document.getElementById("studentSlipModal").classList.add("active");
+            lucide.createIcons();
+        };
+
+        function exportCurrentDataToCSV() {
+            if (filteredStudents.length === 0) {
+                showToast("Tiada data untuk dieksport.", "error");
+                return;
+            }
+
+            const headers = ["NAMA MURID", "TAHUN", "JANTINA", ...SUBJECT_KEYS.map(s => s.id), "PURATA TP", "ULASAN GURU"];
+            const rows = filteredStudents.map(s => {
+                const subScores = SUBJECT_KEYS.map(k => s.scores[k.id] || "");
+                return [
+                    `"${s.nama.replace(/"/g, '""')}"`,
+                    `"Tahun ${s.tahun}"`,
+                    `"${s.jantina}"`,
+                    ...subScores,
+                    s.avgTp.toFixed(2),
+                    `"${s.ulasan.replace(/"/g, '""')}"`
+                ].join(",");
+            });
+
+            const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows].join("\r\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Analisis_PBD_Sekolah_${selectedYear}_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Fail CSV berjaya dimuat turun!", "success");
+        }
+
+        function setSyncStatus(state, msg) {
+            const el = document.getElementById("syncStatus");
+            const txt = document.getElementById("syncText");
+            txt.textContent = msg;
+            if (state === "loading") {
+                el.className = "sync-badge loading";
+            } else if (state === "error") {
+                el.className = "sync-badge error";
+            } else {
+                el.className = "sync-badge";
+            }
+        }
+
+        function showToast(message, type = "info") {
+            const toastContainer = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "toast-msg";
+            
+            let iconName = "info";
+            if (type === "success") iconName = "check-circle";
+            if (type === "error") iconName = "alert-circle";
+
+            toast.innerHTML = `<i data-lucide="${iconName}"></i> <span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Dropdown subjek
+            const subjectSelect = document.getElementById("subjectSelect");
+            SUBJECT_KEYS.forEach(sub => {
+                const opt = document.createElement("option");
+                opt.value = sub.id;
+                opt.textContent = sub.label;
+                subjectSelect.appendChild(opt);
+            });
+
+            // Tab Switching (Overview vs Jadual Pelajar vs Tetapan)
+            const tabBtnOverview = document.getElementById("tabBtnOverview");
+            const tabBtnTable = document.getElementById("tabBtnTable");
+            const tabBtnSettings = document.getElementById("tabBtnSettings");
+            const paneOverview = document.getElementById("paneOverview");
+            const paneTable = document.getElementById("paneTable");
+            const paneSettings = document.getElementById("paneSettings");
+            const mainFilterControls = document.getElementById("mainFilterControls");
+
+            function deactivateAllTabs() {
+                tabBtnOverview.classList.remove("active");
+                tabBtnTable.classList.remove("active");
+                tabBtnSettings.classList.remove("active");
+                paneOverview.classList.remove("active");
+                paneTable.classList.remove("active");
+                paneSettings.classList.remove("active");
+            }
+
+            tabBtnOverview.addEventListener("click", () => {
+                deactivateAllTabs();
+                tabBtnOverview.classList.add("active");
+                paneOverview.classList.add("active");
+                mainFilterControls.style.display = "grid";
+                renderCharts();
+            });
+
+            tabBtnTable.addEventListener("click", () => {
+                deactivateAllTabs();
+                tabBtnTable.classList.add("active");
+                paneTable.classList.add("active");
+                mainFilterControls.style.display = "grid";
+                renderTable();
+            });
+
+            tabBtnSettings.addEventListener("click", () => {
+                deactivateAllTabs();
+                tabBtnSettings.classList.add("active");
+                paneSettings.classList.add("active");
+                mainFilterControls.style.display = "none";
+                if (currentUser && currentUser.role === "ADMIN") {
+                    muatSenaraiPengguna();
+                }
+            });
+
+            // Modal Tambah Pengguna
+            const addUserModal = document.getElementById("addUserModal");
+            const openAddUserBtn = document.getElementById("openAddUserModalBtn");
+            if (openAddUserBtn) {
+                openAddUserBtn.addEventListener("click", () => {
+                    document.getElementById("addUserForm").reset();
+                    addUserModal.classList.add("active");
+                    document.getElementById("newUserEmail").focus();
+                });
+            }
+
+            const closeAddUserModal = () => addUserModal.classList.remove("active");
+            document.getElementById("closeAddUserModalBtn").addEventListener("click", closeAddUserModal);
+            document.getElementById("cancelAddUserBtn").addEventListener("click", closeAddUserModal);
+
+            document.getElementById("addUserForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById("saveNewUserBtn");
+                const emel = document.getElementById("newUserEmail").value.trim();
+                const nama = document.getElementById("newUserName").value.trim();
+                const role = document.getElementById("newUserRole").value;
+                const passSementara = document.getElementById("newUserTempPassword").value;
+
+                btn.disabled = true;
+                btn.innerHTML = `<span class="pulse-dot"></span> Mendaftar...`;
+
+                try {
+                    const res = await panggilAPI({
+                        action: "TAMBAH_USER",
+                        emel: emel,
+                        nama: nama,
+                        role: role,
+                        passwordSementara: passSementara
+                    });
+
+                    if (res.success) {
+                        showToast(res.message, "success");
+                        closeAddUserModal();
+                        muatSenaraiPengguna();
+                    } else {
+                        showToast(res.message || "Gagal menambah pengguna.", "error");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i data-lucide="send"></i> Daftar & Emelkan`;
+                    lucide.createIcons();
+                }
+            });
+
+            // Borang Tukar Kata Laluan Sendiri (Tab Tetapan)
+            document.getElementById("changeOwnPasswordForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const p1 = document.getElementById("ownNewPassword").value;
+                const p2 = document.getElementById("ownConfirmPassword").value;
+
+                if (p1 !== p2) {
+                    showToast("Kata laluan baharu dan pengesahan tidak sepadan.", "error");
+                    return;
+                }
+
+                if (p1.length < 8) {
+                    showToast("Kata laluan mesti sekurang-kurangnya 8 aksara.", "error");
+                    return;
+                }
+
+                const btn = document.getElementById("saveOwnPasswordBtn");
+                btn.disabled = true;
+                btn.innerHTML = `<span class="pulse-dot"></span> Menyimpan...`;
+
+                try {
+                    const res = await panggilAPI({
+                        action: "TUKAR_PASSWORD",
+                        token: sessionToken,
+                        passwordBaru: p1
+                    });
+
+                    if (res.success) {
+                        showToast("Kata laluan anda berjaya dikemas kini!", "success");
+                        document.getElementById("changeOwnPasswordForm").reset();
+                    } else {
+                        showToast(res.message || "Gagal mengemas kini kata laluan.", "error");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i data-lucide="check"></i> Simpan Kata Laluan Baharu`;
+                    lucide.createIcons();
+                }
+            });
+
+            // Modal Lupa Password
+            const forgotModal = document.getElementById("forgotPasswordModal");
+            const forgotStep1 = document.getElementById("forgotStep1Form");
+            const forgotStep2 = document.getElementById("forgotStep2Form");
+            let emailForReset = "";
+
+            document.getElementById("forgotPasswordLinkBtn").addEventListener("click", () => {
+                tutupModalLogin();
+                forgotStep1.reset();
+                forgotStep2.reset();
+                forgotStep1.style.display = "flex";
+                forgotStep2.style.display = "none";
+                forgotModal.classList.add("active");
+                document.getElementById("forgotEmailInput").focus();
+            });
+
+            const closeForgotModal = () => forgotModal.classList.remove("active");
+            document.getElementById("closeForgotModalBtn").addEventListener("click", () => {
+                closeForgotModal();
+                bukaModalLogin();
+            });
+
+            // Fasa 1 Lupa Password: Minta Kod
+            forgotStep1.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                emailForReset = document.getElementById("forgotEmailInput").value.trim().toLowerCase();
+                const btn = document.getElementById("requestResetCodeBtn");
+
+                btn.disabled = true;
+                btn.innerHTML = `<span class="pulse-dot"></span> Menghantar Kod...`;
+
+                try {
+                    const res = await panggilAPI({
+                        action: "MINTA_KOD_RESET",
+                        emel: emailForReset
+                    });
+
+                    showToast(res.message, "info");
+                    forgotStep1.style.display = "none";
+                    forgotStep2.style.display = "flex";
+                    document.getElementById("resetCodeInput").focus();
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i data-lucide="send"></i> Hantar Kod Pengesahan`;
+                    lucide.createIcons();
+                }
+            });
+
+            // Fasa 2 Lupa Password: Sahkan Kod & Kata Laluan Baharu
+            forgotStep2.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const kod = document.getElementById("resetCodeInput").value.trim();
+                const p1 = document.getElementById("resetNewPasswordInput").value;
+                const p2 = document.getElementById("resetConfirmPasswordInput").value;
+
+                if (p1 !== p2) {
+                    showToast("Kata laluan dan pengesahan tidak sepadan.", "error");
+                    return;
+                }
+
+                if (p1.length < 8) {
+                    showToast("Kata laluan mesti sekurang-kurangnya 8 aksara.", "error");
+                    return;
+                }
+
+                const btn = document.getElementById("submitResetPasswordBtn");
+                btn.disabled = true;
+                btn.innerHTML = `<span class="pulse-dot"></span> Mengesahkan...`;
+
+                try {
+                    const res = await panggilAPI({
+                        action: "SAHKAN_KOD_RESET",
+                        emel: emailForReset,
+                        kod: kod,
+                        passwordBaru: p1
+                    });
+
+                    if (res.success) {
+                        showToast(res.message, "success");
+                        closeForgotModal();
+                        bukaModalLogin();
+                        document.getElementById("loginEmail").value = emailForReset;
+                        document.getElementById("loginPassword").focus();
+                    } else {
+                        showToast(res.message || "Gagal mengesahkan kod.", "error");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i data-lucide="check-circle-2"></i> Tetapkan Semula Kata Laluan`;
+                    lucide.createIcons();
+                }
+            });
+
+            // Master Toggle Direct Edit
+            const masterEditBtn = document.getElementById("masterEditToggleBtn");
+            if (masterEditBtn) {
+                masterEditBtn.addEventListener("click", () => {
+                    window.toggleDirectEditMode();
+                });
+            }
+
+            // Modal Tambah Pelajar
+            const addModal = document.getElementById("addStudentModal");
+            const openAddStudentBtn = document.getElementById("openAddStudentModalBtn");
+            if (openAddStudentBtn) {
+                openAddStudentBtn.addEventListener("click", () => {
+                    document.getElementById("addStudentForm").reset();
+                    if (selectedYear !== "ALL") {
+                        document.getElementById("addStudentYear").value = selectedYear;
+                    }
+                    addModal.classList.add("active");
+                    document.getElementById("addStudentName").focus();
+                });
+            }
+
+            const closeAddModal = () => addModal.classList.remove("active");
+            document.getElementById("closeAddStudentModalBtn").addEventListener("click", closeAddModal);
+            document.getElementById("cancelAddStudentBtn").addEventListener("click", closeAddModal);
+
+            document.getElementById("addStudentForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const saveBtn = document.getElementById("saveNewStudentBtn");
+                const nama = document.getElementById("addStudentName").value.trim();
+                const thn = document.getElementById("addStudentYear").value;
+                const jantina = document.getElementById("addStudentGender").value;
+                const ulasan = document.getElementById("addStudentComment").value.trim();
+
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = `<span class="pulse-dot"></span> Menyimpan...`;
+
+                try {
+                    const res = await panggilAPI({
+                        action: "TAMBAH_MURID",
+                        tahun: thn,
+                        nama: nama,
+                        jantina: jantina,
+                        ulasan: ulasan,
+                        scores: {}
+                    });
+
+                    if (res.success) {
+                        showToast(res.message || "Murid berjaya didaftarkan!", "success");
+                        closeAddModal();
+                        muatDataPBDDariAPI();
+                    } else {
+                        showToast(res.message || "Gagal menambah murid.", "error");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = `<i data-lucide="save"></i> Simpan Murid`;
+                    lucide.createIcons();
+                }
+            });
+
+            // Modal Edit Pelajar
+            const editModal = document.getElementById("editStudentModal");
+            const closeEditModal = () => editModal.classList.remove("active");
+            document.getElementById("closeEditStudentModalBtn").addEventListener("click", closeEditModal);
+            document.getElementById("cancelEditStudentBtn").addEventListener("click", closeEditModal);
+
+            document.getElementById("editStudentForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById("updateStudentBtn");
+                const namaAsal = document.getElementById("editStudentOriginalName").value;
+                const thn = document.getElementById("editStudentYear").value;
+                const namaBaru = document.getElementById("editStudentName").value.trim();
+                const jantina = document.getElementById("editStudentGender").value;
+                const ulasan = document.getElementById("editStudentComment").value.trim();
+
+                btn.disabled = true;
+                btn.innerHTML = `<span class="pulse-dot"></span> Mengemas kini...`;
+
+                try {
+                    const res = await panggilAPI({
+                        action: "KEMASKINI_MAKLUMAT_MURID",
+                        tahun: thn,
+                        namaAsal: namaAsal,
+                        nama: namaBaru,
+                        jantina: jantina,
+                        ulasan: ulasan
+                    });
+
+                    if (res.success) {
+                        showToast("Profil murid berjaya dikemas kini!", "success");
+                        closeEditModal();
+                        muatDataPBDDariAPI();
+                    } else {
+                        showToast(res.message || "Gagal mengemas kini maklumat.", "error");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i data-lucide="save"></i> Simpan Perubahan`;
+                    lucide.createIcons();
+                }
+            });
+
+            // Butang penapis tahun
+            const yearButtons = document.querySelectorAll(".year-pill-btn");
+            yearButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    yearButtons.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    selectedYear = btn.getAttribute("data-year");
+                    muatDataPBDDariAPI();
+                });
+            });
+
+            subjectSelect.addEventListener("change", (e) => {
+                selectedSubject = e.target.value;
+                applyFiltersAndRender();
+            });
+
+            document.getElementById("genderSelect").addEventListener("change", (e) => {
+                selectedGender = e.target.value;
+                applyFiltersAndRender();
+            });
+
+            document.getElementById("tpSelect").addEventListener("change", (e) => {
+                selectedTpFilter = e.target.value;
+                applyFiltersAndRender();
+            });
+
+            const pageSizeSel = document.getElementById("pageSizeSelect");
+            if (pageSizeSel) {
+                pageSizeSel.addEventListener("change", (e) => {
+                    pageSize = parseInt(e.target.value, 10);
+                    currentPage = 1;
+                    renderTable();
+                });
+            }
+
+            const prevBtn = document.getElementById("prevPageBtn");
+            if (prevBtn) {
+                prevBtn.addEventListener("click", () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderTable();
+                    }
+                });
+            }
+
+            const nextBtn = document.getElementById("nextPageBtn");
+            if (nextBtn) {
+                nextBtn.addEventListener("click", () => {
+                    if ((currentPage * pageSize) < filteredStudents.length) {
+                        currentPage++;
+                        renderTable();
+                    }
+                });
+            }
+
+            document.getElementById("refreshBtn").addEventListener("click", () => {
+                muatDataPBDDariAPI();
+            });
+
+            document.getElementById("exportCsvBtn").addEventListener("click", () => {
+                exportCurrentDataToCSV();
+            });
+
+            document.getElementById("logoutBtn").addEventListener("click", () => {
+                logoutPengguna(true);
+            });
+
+            // Borang Log Masuk
+            document.getElementById("loginForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const emel = document.getElementById("loginEmail").value.trim();
+                const pass = document.getElementById("loginPassword").value;
+                const submitBtn = document.getElementById("submitLoginBtn");
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<span class="pulse-dot"></span> Mengesahkan...`;
+
+                try {
+                    const res = await panggilAPI({
+                        action: "LOGIN",
+                        emel: emel,
+                        password: pass
+                    });
+
+                    if (res.success) {
+                        sessionToken = res.token;
+                        currentUser = res.user;
+                        localStorage.setItem("PBD_SESSION_TOKEN", sessionToken);
+                        localStorage.setItem("PBD_USER_PROFILE", JSON.stringify(currentUser));
+                        tutupModalLogin();
+                        kemaskiniUIProfil();
+
+                        if (currentUser.mestiTukarPassword) {
+                            bukaModalForcePassword();
+                            showToast("Sila tukar kata laluan sementara anda.", "info");
+                        } else {
+                            showToast(`Selamat kembali, ${currentUser.nama || currentUser.emel}!`, "success");
+                            muatDataPBDDariAPI();
+                        }
+                    } else {
+                        showToast(res.message || "Log masuk gagal.", "error");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<i data-lucide="log-in"></i> Log Masuk`;
+                    lucide.createIcons();
+                }
+            });
+
+            // Borang Tukar Password Paksa
+            document.getElementById("forcePasswordForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const pass1 = document.getElementById("newPasswordInput").value;
+                const pass2 = document.getElementById("confirmPasswordInput").value;
+
+                if (pass1 !== pass2) {
+                    showToast("Kata laluan baharu dan pengesahan tidak sepadan.", "error");
+                    return;
+                }
+
+                if (pass1.length < 8) {
+                    showToast("Kata laluan mesti sekurang-kurangnya 8 aksara.", "error");
+                    return;
+                }
+
+                const submitBtn = document.getElementById("submitNewPasswordBtn");
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<span class="pulse-dot"></span> Menyimpan...`;
+
+                try {
+                    const res = await panggilAPI({
+                        action: "TUKAR_PASSWORD",
+                        token: sessionToken,
+                        passwordBaru: pass1
+                    });
+
+                    if (res.success) {
+                        showToast("Kata laluan berjaya dikemas kini!", "success");
+                        tutupModalForcePassword();
+                        currentUser.mestiTukarPassword = false;
+                        localStorage.setItem("PBD_USER_PROFILE", JSON.stringify(currentUser));
+                        muatDataPBDDariAPI();
+                    } else {
+                        showToast(res.message || "Gagal mengemas kini kata laluan.", "error");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<i data-lucide="save"></i> Simpan & Teruskan`;
+                    lucide.createIcons();
+                }
+            });
+
+            // Pertukaran Tema (Dark / Light)
+            const themeToggleBtn = document.getElementById("themeToggleBtn");
+            const themeLabel = document.getElementById("themeLabel");
+            const themeIcon = document.getElementById("themeIcon");
+
+            themeToggleBtn.addEventListener("click", () => {
+                const currentTheme = document.body.getAttribute("data-theme");
+                const newTheme = currentTheme === "dark" ? "light" : "dark";
+                document.body.setAttribute("data-theme", newTheme);
+
+                if (newTheme === "dark") {
+                    themeLabel.textContent = "Cerah";
+                    themeIcon.setAttribute("data-lucide", "sun");
+                } else {
+                    themeLabel.textContent = "Gelap";
+                    themeIcon.setAttribute("data-lucide", "moon");
+                }
+                lucide.createIcons();
+                renderCharts();
+            });
+
+            // Penutupan Modal Slip
+            const closeSlip = () => document.getElementById("studentSlipModal").classList.remove("active");
+            document.getElementById("closeSlipBtn").addEventListener("click", closeSlip);
+            document.getElementById("closeSlipBtnBottom").addEventListener("click", closeSlip);
+            document.getElementById("studentSlipModal").addEventListener("click", (e) => {
+                if (e.target.id === "studentSlipModal") closeSlip();
+            });
+
+            lucide.createIcons();
+
+            // Semak Sesi Semasa
+            kemaskiniUIProfil();
+            if (sessionToken) {
+                muatDataPBDDariAPI();
+            } else {
+                bukaModalLogin();
+            }
+        });
+    </script>
+</body>
+</html>
